@@ -45,7 +45,7 @@ export const useHubStore = defineStore('hubStore', () => {
 
     if (data.value) {
       hubList.value = data.value.data
-      hubList.value.push('https://memo.vaaat.com')
+      // hubList.value.push('https://memo.vaaat.com')
     }
   }
 
