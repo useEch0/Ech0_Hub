@@ -1,14 +1,12 @@
 <template>
-  <div
-    class="max-w-sm sm:max-w-full px-2 pb-4 py-2 mt-4 sm:mt-6 mb-10 mx-auto flex justify-center items-center"
-  >
+  <div class="w-full px-2 pb-4 py-2 mt-4 sm:mt-6 mb-10 mx-auto flex justify-center items-center">
     <!-- Ech0s Hub -->
-    <div class="mx-auto px-2">
+    <div class="w-full mx-auto px-2">
       <h1 class="mb-4 text-center text-6xl text-gray-400 font-bold italic">Ech0s Hub</h1>
 
-      <div v-if="echoList.length > 0">
-        <div v-for="echo in echoList" :key="echo.id" class="my-6">
-          <TheEchoDetail :echo="echo" />
+      <div v-if="echoList.length > 0" class="space-y-6">
+        <div v-for="echo in echoList" :key="echo.id" class="flex justify-center items-center">
+          <TheEchoDetail :echo="echo" class="max-w-full" />
         </div>
       </div>
 
