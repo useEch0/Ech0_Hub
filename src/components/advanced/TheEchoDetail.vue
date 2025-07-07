@@ -13,7 +13,7 @@
       <div class="flex flex-col">
         <div class="flex items-center gap-1">
           <h1 class="text-black font-semibold overflow-hidden whitespace-nowrap text-center">
-            {{ echo.server_name }}
+            <a :href="echo.server_url" target="_blank">{{ echo.server_name }}</a>
           </h1>
 
           <div>
