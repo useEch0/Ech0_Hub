@@ -5,6 +5,10 @@ export const getImageUrl = (image: App.Api.Ech0.Image, baseurl: string) => {
     return baseurl + '/api' + String(image.image_url)
   } else if (image.image_source === ImageSource.URL) {
     return String(image.image_url)
+  } else if (image.image_source === ImageSource.S3) {
+    return String(image.image_url)
+  } else if (image.image_source === ImageSource.R2) {
+    return String(image.image_url)
   } else {
     // 未知的图片来源，按照本地图片处理
     return baseurl + '/api' + String(image.image_url)
