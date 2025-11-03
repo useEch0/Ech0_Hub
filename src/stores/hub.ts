@@ -64,9 +64,9 @@ export const useHubStore = defineStore('hubStore', () => {
           : item
         : item.connect_url.endsWith('/')
           ? {
-              ...item,
-              connect_url: item.connect_url.slice(0, -1),
-            }
+            ...item,
+            connect_url: item.connect_url.slice(0, -1),
+          }
           : item
     })
 
@@ -88,11 +88,14 @@ export const useHubStore = defineStore('hubStore', () => {
         if (result.status === 'fulfilled' && result.value) {
           hubinfoList.value.push(result.value)
           const hubKey =
-            typeof hubList.value[index] === 'string'
-              ? hubList.value[index]
-              : hubList.value[index].connect_url
-          // 将Hub信息存入Map
-          hubInfoMap.value.set(hubKey, result.value)
+            typeof hubList.value?.[index] === 'string'
+              ? hubList.value?.[index]
+              : hubList.value?.[index]?.connect_url
+
+          // 将Hub信息存入Map（确保 hubKey 为 string）
+          if (typeof hubKey === 'string') {
+            hubInfoMap.value.set(hubKey, result.value)
+          }
         } else {
           theToast.warning(`获取Hub信息失败: ${hubList.value[index]}`)
         }
