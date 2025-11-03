@@ -33,11 +33,11 @@ function show(
     description: options?.description ?? defaultToastOptions.description,
     ...(options?.action?.label
       ? {
-          action: {
-            label: options.action.label,
-            onClick: options.action.onClick ?? (() => toast.dismiss()),
-          },
-        }
+        action: {
+          label: options.action.label,
+          onClick: options.action.onClick ?? (() => toast.dismiss()),
+        },
+      }
       : {}),
   })
 }

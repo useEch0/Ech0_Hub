@@ -1,32 +1,34 @@
 <template>
-  <div class="w-full max-w-sm bg-white h-auto p-5 shadow-sm hover:shadow-md rounded-lg">
+  <div class="w-full max-w-sm bg-white h-auto p-5 shadow rounded-lg mx-auto">
     <!-- 顶部Logo 和 用户名 -->
     <div class="flex flex-row items-center gap-2 mt-2 mb-4">
+      <!-- <div class="text-xl">👾</div> -->
       <div>
         <img
           :src="echo.logo"
           alt="logo"
-          loading="lazy"
           class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-1 ring-gray-200 shadow-sm object-cover"
         />
       </div>
       <div class="flex flex-col">
         <div class="flex items-center gap-1">
-          <h1 class="text-black font-semibold overflow-hidden whitespace-nowrap text-center">
+          <h2 class="text-gray-700 font-bold overflow-hidden whitespace-nowrap text-center">
             <a :href="echo.server_url" target="_blank">{{ echo.server_name }}</a>
-          </h1>
+          </h2>
 
           <div>
             <Verified class="text-sky-500 w-5 h-5" />
           </div>
         </div>
-        <span class="text-[#5b7083]">@ {{ echo.username }} </span>
+        <span class="text-[#5b7083] font-serif">@ {{ echo.username }} </span>
       </div>
     </div>
 
     <!-- 图片 && 内容 -->
     <div>
-      <div>
+      <div class="py-4">
+        <TheImageGallery :images="props.echo.images" :baseUrl="echo.server_url" />
+
         <!-- 内容 -->
         <div>
           <MdPreview
@@ -62,32 +64,6 @@
             class="px-2 mx-auto hover:shadow-md"
           />
         </div>
-
-        <!-- 图片 -->
-        <div v-if="props.echo.images && props.echo.images.length > 0" class="mx-auto w-11/12 my-4">
-          <div class="rounded-lg overflow-hidden mb-2">
-            <a :href="getImageUrl(props.echo.images[imageIndex], echo.server_url)" data-fancybox>
-              <img
-                :src="getImageUrl(props.echo.images[imageIndex], echo.server_url)"
-                alt="Image"
-                class="max-w-full object-cover"
-                loading="lazy"
-              />
-            </a>
-          </div>
-          <!-- 图片切换 -->
-          <div v-if="props.echo.images.length > 1" class="flex items-center justify-center">
-            <button @click="imageIndex = Math.max(imageIndex - 1, 0)">
-              <Prev class="w-6 h-6" />
-            </button>
-            <span class="text-gray-500 text-sm mx-2">
-              {{ imageIndex + 1 }} / {{ props.echo.images.length }}
-            </span>
-            <button @click="imageIndex = Math.min(imageIndex + 1, props.echo.images.length - 1)">
-              <Next class="w-6 h-6" />
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -95,27 +71,31 @@
     <div class="flex justify-between items-center">
       <!-- 日期时间 -->
       <div class="flex justify-start items-center h-auto">
-        <div class="flex justify-start text-sm text-slate-500">
+        <div class="flex justify-start text-sm text-slate-500 mr-1">
           {{ formatDate(props.echo.created_at) }}
+        </div>
+        <!-- 标签 -->
+        <div class="text-sm text-gray-300 w-18 truncate text-nowrap">
+          <span>{{ props.echo.tags ? `#${props.echo.tags[0]?.name}` : '' }}</span>
         </div>
       </div>
 
       <!-- 操作按钮 -->
-      <div ref="menuRef" class="relative flex items-center justify-center gap-1 h-auto">
+      <div ref="menuRef" class="relative flex items-center justify-center gap-2 h-auto">
         <!-- 点赞 -->
         <div class="flex items-center justify-end" title="点赞">
           <div class="flex items-center gap-1">
             <!-- 点赞按钮   -->
-            <!--
             <button
-              @click="handleLikeEcho(props.echo.id)"
+              @click=""
               title="点赞"
-              class="transform transition-transform duration-200 hover:scale-160"
+              :class="[
+                'transform transition-transform duration-150',
+                isLikeAnimating ? 'scale-160' : 'scale-100',
+              ]"
             >
               <GrayLike class="w-4 h-4" />
             </button>
-            -->
-            <GrayLike class="w-4 h-4" />
 
             <!-- 点赞数量   -->
             <span class="text-sm text-gray-400">
@@ -132,33 +112,28 @@
 <script setup lang="ts">
 import TheGithubCard from './TheGithubCard.vue'
 import TheVideoCard from './TheVideoCard.vue'
-import Prev from '../icons/prev.vue'
-import Next from '../icons/next.vue'
 import Verified from '../icons/verified.vue'
 import GrayLike from '../icons/graylike.vue'
+import Share from '../icons/share.vue'
 import TheAPlayerCard from './TheAPlayerCard.vue'
 import TheWebsiteCard from './TheWebsiteCard.vue'
-import '@fancyapps/ui/dist/fancybox/fancybox.css'
+import TheImageGallery from './TheImageGallery.vue'
 import 'md-editor-v3/lib/preview.css'
-import { Fancybox } from '@fancyapps/ui'
 import { MdPreview } from 'md-editor-v3'
-import { getImageUrl } from '@/utils/other'
 import { onMounted, ref } from 'vue'
-// import { theToast } from '@/utils/toast'
-// import { localStg } from '@/utils/storage'
+import { theToast } from '@/utils/toast'
+import { localStg } from '@/utils/storage'
+import { storeToRefs } from 'pinia'
+import { ExtensionType } from '@/enums/enums'
+import { formatDate } from '@/utils/other'
+
+const emit = defineEmits(['updateLikeCount'])
 
 type Echo = App.Api.Ech0.Echo
-const enum ExtensionType {
-  MUSIC = 'MUSIC',
-  VIDEO = 'VIDEO',
-  GITHUBPROJ = 'GITHUBPROJ',
-  WEBSITE = 'WEBSITE',
-}
 
 const props = defineProps<{
   echo: Echo
 }>()
-const imageIndex = ref<number>(0)
 const previewOptions = {
   proviewId: 'preview-only',
   theme: 'light' as 'light' | 'dark',
@@ -171,30 +146,8 @@ const previewOptions = {
   autoFoldThreshold: 15,
 }
 
-const formatDate = (dateString: string) => {
-  // 当天则显示（时：分）
-  // 非当天但是三内天则显示几天前
-  // 超过三天则显示（时：分 年月日）
-  const date = new Date(dateString)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const diffInDays = Math.floor(diff / (1000 * 60 * 60 * 24))
-  const diffInHours = Math.floor(diff / (1000 * 60 * 60))
-  const diffInMinutes = Math.floor(diff / (1000 * 60))
-
-  const diffInSeconds = Math.floor(diff / 1000)
-  if (diffInSeconds < 60) {
-    return '刚刚'
-  } else if (diffInMinutes < 60) {
-    return `${diffInMinutes}分钟前`
-  } else if (diffInHours < 24) {
-    return `${diffInHours}小时前`
-  } else if (diffInDays < 3) {
-    return `${diffInDays}天前`
-  } else {
-    return date.toLocaleString() // 返回完整的日期和时间
-  }
-}
+const isLikeAnimating = ref(false)
+// const isShareAnimating = ref(false)
 
 // const LIKE_LIST_KEY = 'likedEchoIds'
 // const likedEchoIds: number[] = localStg.getItem(LIKE_LIST_KEY) || []
@@ -202,26 +155,43 @@ const formatDate = (dateString: string) => {
 //   return likedEchoIds.includes(echoId)
 // }
 // const handleLikeEcho = (echoId: number) => {
+//   isLikeAnimating.value = true
+//   setTimeout(() => {
+//     isLikeAnimating.value = false
+//   }, 250) // 对应 duration-250
+
 //   // 检查LocalStorage中是否已经点赞过
 //   if (hasLikedEcho(echoId)) {
-//     theToast.success('你已经点赞过了,感谢你的喜欢！')
+//     theToast.info('你已经点赞过了,感谢你的喜欢！')
 //     return
 //   }
 
-//   // fetchLikeEcho(echoId).then((res) => {
-//   //   if (res.code === 1) {
-//   //     likedEchoIds.push(echoId)
-//   //     localStg.setItem(LIKE_LIST_KEY, likedEchoIds)
-//   //     theToast.success('点赞成功！')
-//   //   }
-//   // })
+//   fetchLikeEcho(echoId).then((res) => {
+//     if (res.code === 1) {
+//       likedEchoIds.push(echoId)
+//       localStg.setItem(LIKE_LIST_KEY, likedEchoIds)
+//       // 发送更新事件
+//       emit('updateLikeCount', echoId)
+//       theToast.info('点赞成功！')
+//     }
+//   })
 // }
 
-onMounted(() => {
-  Fancybox.bind('[data-fancybox]', {
-    // Your custom options
-  })
-})
+// const handleShareEcho = (echoId: number) => {
+//   isShareAnimating.value = true
+//   setTimeout(() => {
+//     isShareAnimating.value = false
+//   }, 250) // 对应 duration-250
+
+//   const shareUrl = `${window.location.origin}/echo/${echoId}\n ———— 来自 Ech0 分享`
+//   navigator.clipboard.writeText(shareUrl).then(() => {
+//     theToast.info('已复制到剪贴板！')
+//   })
+// }
+
+const logo = ref<string>('/favicon.svg')
+
+onMounted(() => {})
 </script>
 
 <style scoped lang="css">
@@ -230,6 +200,7 @@ onMounted(() => {
 }
 
 .md-editor {
+  /* font-family: var(--font-sans); */
   font-family: 'LXGW WenKai Screen';
 }
 

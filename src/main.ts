@@ -11,7 +11,6 @@ import katex from 'katex'
 import 'katex/dist/katex.min.css'
 
 import Cropper from 'cropperjs'
-import 'cropperjs/dist/cropper.css'
 
 import mermaid from 'mermaid'
 
@@ -24,6 +23,7 @@ import 'highlight.js/styles/atom-one-dark.css'
 // >=3.0
 import * as prettier from 'prettier'
 import parserMarkdown from 'prettier/plugins/markdown'
+
 
 config({
   editorExtensions: {
@@ -46,6 +46,12 @@ config({
     mermaid: {
       instance: mermaid,
     },
+  },
+  codeMirrorExtensions(extensions) {
+    return [
+      // 移除 linkShortener
+      ...extensions.filter((ext) => ext.type !== 'linkShortener'),
+    ]
   },
 })
 

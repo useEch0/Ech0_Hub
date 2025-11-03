@@ -1,5 +1,6 @@
 <template>
-  <div v-if="musicInfo && metingAPI.length > 0">
+  <!-- 网易云 / QQ 音乐使用 Meting JS来展示 -->
+  <div v-if="musicInfo && musicInfo.server !== MusicProvider.APPLE && metingAPI.length > 0">
     <meting-js
       :api="metingAPI"
       :server="musicInfo.server"
@@ -8,6 +9,21 @@
       :auto="props.echo.extension"
     >
     </meting-js>
+  </div>
+  <!-- Apple Music 使用官方IFrame -->
+  <div
+    v-else-if="musicInfo && musicInfo.server === MusicProvider.APPLE && musicInfo.id"
+    class="shadow-sm rounded-xl overflow-hidden"
+  >
+    <iframe
+      allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+      frameborder="0"
+      height="175"
+      style="width: 100%; max-width: 660px; overflow: hidden; border-radius: 10px"
+      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+      :src="`https://embed.music.apple.com/cn/${musicInfo.type}/${musicInfo.id}`"
+    >
+    </iframe>
   </div>
   <div
     v-else
@@ -21,8 +37,9 @@
 import Music from '@/components/icons/music.vue'
 import { computed } from 'vue'
 import { parseMusicURL } from '@/utils/other'
+import { ExtensionType, MusicProvider } from '@/enums/enums'
+
 type Echo = App.Api.Ech0.Echo
-import { ExtensionType } from '@/enums/enums'
 
 const props = defineProps<{
   echo: Echo
