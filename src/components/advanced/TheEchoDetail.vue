@@ -87,8 +87,8 @@
           <div class="flex items-center gap-1">
             <!-- 点赞按钮   -->
             <button
-              @click=""
               title="点赞"
+              disabled="true"
               :class="[
                 'transform transition-transform duration-150',
                 isLikeAnimating ? 'scale-160' : 'scale-100',
@@ -114,20 +114,14 @@ import TheGithubCard from './TheGithubCard.vue'
 import TheVideoCard from './TheVideoCard.vue'
 import Verified from '../icons/verified.vue'
 import GrayLike from '../icons/graylike.vue'
-import Share from '../icons/share.vue'
 import TheAPlayerCard from './TheAPlayerCard.vue'
 import TheWebsiteCard from './TheWebsiteCard.vue'
 import TheImageGallery from './TheImageGallery.vue'
 import 'md-editor-v3/lib/preview.css'
 import { MdPreview } from 'md-editor-v3'
 import { onMounted, ref } from 'vue'
-import { theToast } from '@/utils/toast'
-import { localStg } from '@/utils/storage'
-import { storeToRefs } from 'pinia'
 import { ExtensionType } from '@/enums/enums'
 import { formatDate } from '@/utils/other'
-
-const emit = defineEmits(['updateLikeCount'])
 
 type Echo = App.Api.Ech0.Echo
 
@@ -188,8 +182,6 @@ const isLikeAnimating = ref(false)
 //     theToast.info('已复制到剪贴板！')
 //   })
 // }
-
-const logo = ref<string>('/favicon.svg')
 
 onMounted(() => {})
 </script>

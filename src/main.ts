@@ -24,7 +24,6 @@ import 'highlight.js/styles/atom-one-dark.css'
 import * as prettier from 'prettier'
 import parserMarkdown from 'prettier/plugins/markdown'
 
-
 config({
   editorExtensions: {
     prettier: {
